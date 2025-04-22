@@ -1,0 +1,11 @@
+# # Exclude everything
+# *
+
+# # Allow only files ending with .R
+# !*.R
+
+# Exclude everything fasta
+*.fasta
+*.txt
+.Rhistory
+.RData

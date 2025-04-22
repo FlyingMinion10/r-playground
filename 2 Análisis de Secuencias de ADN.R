@@ -1,0 +1,94 @@
+# --- Generar secuencia aleatoria de ADN de 125 bases ---
+
+# Función para generar secuencias de ADN de tamaño N
+ADN_tamaño_N <- function(n = 125) {
+  # Definir las posibles bases: A, T, C, G, N y -
+  bases <- c("A", "T", "C", "G", "N", "-")
+  # Generar una secuencia aleatoria tomando 'n' bases con reemplazo
+  secuencia <- sample(bases, size = n, replace = TRUE)
+  # Convertir el vector de bases en una cadena de texto
+  secuencia <- paste(secuencia, collapse = "")
+  return(secuencia)
+}
+
+# Generar la secuencia de 125 bases
+secuencia_ADN <- ADN_tamaño_N(125)
+
+# Mostrar la secuencia generada
+cat("Secuencia de ADN:\n", secuencia_ADN, "\n")
+
+# Calcular y mostrar el tamaño de la secuencia utilizando nchar()
+tamaño <- nchar(secuencia_ADN)
+cat("Tamaño de la secuencia:", tamaño, "\n")
+
+
+# --- Calcular el porcentaje de bases en la secuencia de ADN ---
+
+# Función para calcular el porcentaje de cada base en una secuencia
+porcentaje_Bases <- function(secuencia) {
+  # Dividir la secuencia en caracteres individuales
+  bases_vector <- strsplit(secuencia, split = "")[[1]]
+  total <- length(bases_vector)
+  # Calcular la frecuencia de cada base
+  frec <- table(bases_vector)
+  # Calcular el porcentaje y redondear a dos decimales
+  porcentajes <- round(100 * frec / total, 2)
+  return(porcentajes)
+}
+
+# Calcular el porcentaje de bases en la secuencia generada
+porcentajes <- porcentaje_Bases(secuencia_ADN)
+cat("Porcentaje de bases en la secuencia:\n")
+print(porcentajes)
+
+
+# --- Graficar el porcentaje de bases (A, T, G, C, N y -) ---
+
+# Definir las bases a graficar
+bases_completas <- c("A", "T", "G", "C", "N", "-")
+porcentajes_completos <- sapply(bases_completas, function(x) {
+  if (x %in% names(porcentajes)) {
+    porcentajes[x]
+  } else {
+    0
+  }
+})
+
+# Crear un gráfico de barras para visualizar el porcentaje de bases
+barplot(porcentajes_completos, 
+        main = "Porcentaje de Bases en la Secuencia", 
+        col = "lightblue", 
+        ylab = "Porcentaje", 
+        xlab = "Bases",
+        ylim = c(0, 100))
+
+
+#------------- Generalidades de las gráficas en ggplot2 sin programar -------------
+
+install.packages("esquisse")
+
+library(esquisse)
+#crearé un data frame a manera de ejemplo
+
+Organismo <- c(1, 1, 2, 1, 2, 2, 2, 1, 2)
+Número_bases <- c(1000, 3000, 5000, 2400, 3000, 5000, 6500, 4200, 7500)
+Mutaciones <- c(1, 1, 3, 2, 4, 1, 5, 3, 2)
+Organismos_con_mutaciones <- data.frame(Organismo, Número_bases, Mutaciones)
+
+# Guardar el data frame en un archivo de texto
+write.table(Organismos_con_mutaciones, file = "Organismos_con_mutaciones.txt", sep = "\t", row.names = FALSE)
+
+# Generar un gráfico interactivo con esquisse
+esquisser(Organismos_con_mutaciones)
+
+
+# --- Investigación: ¿Por qué el ARN contiene Uracilo en lugar de Timina? ---
+# 
+# El ARN utiliza Uracilo (U) en lugar de Timina (T) presente en el ADN por varias razones:
+# 1. Economía energética: La síntesis de uracilo es menos costosa en términos energéticos que la de timina.
+# 2. Función y estabilidad: El ARN es generalmente una molécula de vida corta y no requiere la mayor estabilidad que ofrece la timina en el ADN.
+# 3. Corrección de errores: En el ADN, la presencia de timina ayuda a diferenciarla de uracilo que puede generarse por la desaminación de la citosina, lo que es esencial para el mantenimiento de la integridad genética.
+#
+# Referencias:
+# - Alberts, B. et al. (2002). Molecular Biology of the Cell. 4ta edición. Garland Science.
+# - Lodish, H. et al. (2000). Molecular Cell Biology. 4ta edición. W. H. Freeman.
