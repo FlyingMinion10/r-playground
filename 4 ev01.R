@@ -57,7 +57,11 @@ df <- tibble(
 print(df)
 
 # Guardar tabla en CSV
-write_csv(df, "variants_metrics.csv")
+df2 <- data.frame(lapply(df, function(col) {
+  if (is.list(col)) unlist(col) else col
+}), stringsAsFactors = FALSE)
+
+readr::write_csv(df2, "variants_metrics.csv")
 
 # Preparar datos para la gráfica de composición de bases
 base_df <- df %>%
@@ -75,6 +79,9 @@ plot <- ggplot(base_df, aes(x = Variant,
          x = NULL, y = "Número de nucleótidos") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+# Ensure the plot is rendered in non-interactive scripts
+print(plot)
 
 ggsave(filename = "base_composition_variants.png",
        plot = plot,
