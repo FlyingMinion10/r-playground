@@ -1,8 +1,9 @@
 # # Exclude everything
-# *
+*
 
 # # Allow only files ending with .R
-# !*.R
+!*.R
+!*.Rmd
 
 # Exclude everything fasta
 *.fasta

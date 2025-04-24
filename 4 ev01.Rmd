@@ -1,0 +1,212 @@
+---
+title: "4 ev01"
+author: "Juan Felipe"
+date: "2025-04-23"
+output: html_document
+---
+## PARTE 1:
+
+# Informe sobre la situación actual del COVID-19
+
+## 1. Situación actual del COVID-19
+
+**A nivel mundial:**  
+En abril de 2025, el COVID-19 sigue presente a nivel global, aunque con menor impacto que en los primeros años de la pandemia. La Organización Mundial de la Salud (OMS) continúa monitoreando nuevas variantes del virus, como KP.3, KP.3.1.1 y LB.1, que están bajo observación por su potencial impacto en la salud pública.  
+Fuente: [OMS - Variantes](https://data.who.int/dashboards/covid19/variants?utm_source=chatgpt.com)
+
+**En México:**  
+Estudios recientes indican que la esperanza de vida en México disminuyó entre 2015 y 2021 por violencia y COVID-19, comenzando a recuperarse desde 2022.  
+Fuente: [University of Oxford](https://www.sociology.ox.ac.uk/article/violence-and-covid-19-drive-decline-in-mexicos-life-expectancy?utm_source=chatgpt.com)
+
+**En Jalisco y Zapopan:**  
+No se encontraron datos actualizados específicos para la región en las fuentes consultadas.
+
+---
+
+## 2. ¿Cuál fue la primera variante del virus que se propagó a todo el mundo?
+
+La primera variante significativa fue **D614G**, detectada a principios de 2020. Se volvió dominante rápidamente debido a su mayor capacidad de transmisión comparada con la cepa original.  
+Fuente: [NCBI - PMC9874793](https://pmc.ncbi.nlm.nih.gov/articles/PMC9874793/?utm_source=chatgpt.com)
+
+---
+
+## 3. ¿Cuáles son las otras variantes del virus que existen en otras regiones del mundo?
+
+- **Alpha (B.1.1.7)** – Reino Unido  
+- **Beta (B.1.351)** – Sudáfrica  
+- **Gamma (P.1)** – Brasil  
+- **Delta (B.1.617.2)** – India  
+- **Omicron (B.1.1.529)** y subvariantes (XEC, KP.3, etc.) – Sudáfrica y otras regiones
+
+Fuente: [Verywell Health - COVID Variants Timeline](https://www.verywellhealth.com/covid-variants-timeline-6741198)
+
+---
+
+## 4. ¿Cómo buscarías información de la variante del virus en tu país?
+
+- Consultar el sitio de la **Secretaría de Salud de México**
+- Revisar el **tablero de variantes de la OMS**  
+  [https://data.who.int/dashboards/covid19/variants](https://data.who.int/dashboards/covid19/variants)
+- Acceder a informes del **Instituto Nacional de Salud Pública (INSP)**
+- Leer artículos científicos publicados en portales como **PubMed** o **Elsevier**
+
+---
+
+## 5. ¿Qué harías en una situación similar a la de Li Wenliang?
+
+**Respuesta seleccionada:**  
+**b) Lo reportas a la prensa.**
+
+**Justificación:**  
+Cuando las autoridades buscan suprimir información crítica para la salud pública, es ético buscar canales alternativos. Informar a la prensa puede salvar vidas y cumplir con la responsabilidad de alertar a la sociedad. Esta acción es especialmente relevante si los canales institucionales fallan o no responden.
+
+**Video sugerido:**  
+[Li Wenliang - Documental](https://www.youtube.com/watch?v=eEUqCxP5Lvc)
+
+---
+
+## Referencias
+
+- [Johns Hopkins Coronavirus Map](https://coronavirus.jhu.edu/map.html)  
+- [OMS - Seguimiento de variantes](https://www.who.int/activities/tracking-SARS-CoV-2-variants)  
+- [Verywell Health - Variants Timeline](https://www.verywellhealth.com/covid-variants-timeline-6741198)  
+- [OMS Dashboard](https://data.who.int/dashboards/covid19/variants)  
+- [Oxford Sociology](https://www.sociology.ox.ac.uk/article/violence-and-covid-19-drive-decline-in-mexicos-life-expectancy?utm_source=chatgpt.com)  
+- [NCBI - D614G Study](https://pmc.ncbi.nlm.nih.gov/articles/PMC9874793/?utm_source=chatgpt.com)
+
+## PARTE 2:
+
+### Objetivo
+Descargar 5 genomas completos de variantes de SARS‑CoV‑2 desde NCBI
+Calcular la longitud, composición de bases y %GC de cada variante
+Graficar la composición de bases por variante
+Generar las secuencias contrasentido (reverse‑complement)
+
+```{r setup, include=FALSE}
+# Requisitos:
+  # install.packages(c("rentrez", "Biostrings", "tidyverse"))
+  # library(Biostrings) requiere el paquete Bioconductor "Biostrings":
+      # if (!requireNamespace("BiocManager", quietly=TRUE)) install.packages("BiocManager")
+      # BiocManager::install("Biostrings")
+# Cargar librerías
+library(rentrez)
+library(Biostrings)
+library(tidyverse)
+```
+
+```{r secuencias}
+
+
+# Vector de accesiones NCBI y nombres de variante
+accessions <- c("MN908947.3",   # Wuhan‑Hu‑1 (referencia ancestral)
+                "MW124723.1",   # Alpha (B.1.1.7)
+                "OK545926.1",   # Delta (B.1.617.2)
+                "OL815455.1",   # Ómicron BA.1
+                "OR052777.1")   # JN.1 (BA.2.86+)
+
+variant_names <- c("Wuhan‑Hu‑1 (ancestral)",
+                   "Alpha (B.1.1.7)",
+                   "Delta (B.1.617.2)",
+                   "Ómicron BA.1",
+                   "JN.1 (BA.2.86+)")  # ajuste según disponibilidad en NCBI
+
+# Descargar secuencias en formato FASTA y convertir a DNAStringSet
+message("Descargando secuencias de NCBI…")
+seqs <- map(accessions, ~{
+    fasta <- entrez_fetch(db = "nuccore", id = .x,
+                          rettype = "fasta", retmode = "text")
+    # quitar encabezado >...
+    DNAString(paste(tail(strsplit(fasta, "\n")[[1]], -1), collapse = ""))
+})
+names(seqs) <- variant_names
+seqset <- DNAStringSet(seqs)
+```
+
+```{r data}
+# Construir data frame con métricas básicas
+df <- tibble(
+    Variant = variant_names,
+    Length  = width(seqset),
+    A = letterFrequency(seqset, "A"),
+    C = letterFrequency(seqset, "C"),
+    G = letterFrequency(seqset, "G"),
+    T = letterFrequency(seqset, "T"),
+) %>%
+  mutate(GC = round((G + C)/Length * 100, 2))
+
+print(df)
+
+## Graficas
+
+# Dada la variación en los ordenes de magnitud de la longitud de las bases en los 
+# diferentes virus, se muestran graficas en porcentaje de nucleotidos y en base 
+# logaritmica respectivamente
+
+# Guardar tabla en CSV
+df2 <- data.frame(lapply(df, function(col) {
+  if (is.list(col)) unlist(col) else col
+}), stringsAsFactors = FALSE)
+
+readr::write_csv(df2, "variants_metrics.csv")
+
+# Preparar datos para la gráfica de composición de bases
+base_df <- df %>%
+    select(Variant, A, C, G, T) %>%
+    pivot_longer(cols = A:T,
+                 names_to = "Base",
+                 values_to = "Count")
+
+# Graficar
+## Porcentajes
+plot <- ggplot(base_df, aes(x = Variant, y = Count, fill = Base)) +
+  geom_col(position = "fill") +                    # apila para que cada barra sea 1
+  scale_y_continuous(labels = scales::percent) +   # convierte a % en el eje
+  labs(title = "Composición de bases (% del genoma)",
+       y = "Proporción (%)", x = NULL) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+print(plot)
+
+## Logaritmica
+plot2 <- ggplot(base_df, aes(x = Variant, y = Count, fill = Base)) +
+  geom_col(position = "stack") +
+  scale_y_log10() +
+  labs(title = "Composición de bases (escala log10)",
+       y = "Log10 de recuento de nucleótidos", x = NULL) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+print(plot2)
+
+ggsave(filename = "base_composition_variants.png",
+       plot = plot,
+       width = 10, height = 6, dpi = 300)
+
+# Calcular y mostrar %GC
+message("Porcentaje de GC por variante:")
+print(df %>% select(Variant, GC))
+
+# Generar secuencias contrasentido y guardarlas en un FASTA
+rc <- reverseComplement(seqset)
+writeXStringSet(rc, filepath = "variants_reverse_complement.fasta",
+                format = "fasta")
+message("\nSe han guardado las secuencias contrasentido en 'variants_reverse_complement.fasta'.")
+
+```
+
+### Interpretación:
+
+Las cinco variantes presentan genomas de ~29.7–30.1 kpb, con una
+composición GC muy estable (~38 %). La gráfica confirma que los
+porcentajes de A, U (T), G y C se conservan entre linajes, lo que
+indica una fuerte presión evolutiva por mantener la estructura del
+genoma y las señales de empacado. No se observan desviaciones
+significativas que sugieran recombinación atípica.
+
+### Referencias:
+- Shu Y, McCauley J. 2017. GISAID: Global initiative… EuroSurveillance.
+- NCBI Virus SARS‑CoV‑2 Data Hub (consultado 22‑abr‑2025).
+- R Core Team (2025). R: A language and environment for statistical computing.
+- Packages: rentrez 1.2.3, Biostrings 2.70, tidyverse 2.0.
+
